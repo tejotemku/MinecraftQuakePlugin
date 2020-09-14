@@ -2,7 +2,7 @@ name: "Quake"
 version: "1.0"
 author: "RoztoczaNaDensflorze"
 main: "com.papiez.quake.QuakeMain"
-api-version: "1.15"
+api-version: "1.16"
 commands:
   quake-start:
     description: starts a quake game
