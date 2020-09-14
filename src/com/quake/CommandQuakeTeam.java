@@ -8,6 +8,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CommandQuakeTeam implements CommandExecutor {
+
+    /*
+        Player joins to quake game. Works only in prestart faze
+        !!!!Command for command block!!!!
+        command usage: /quake-join x y z
+     */
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -21,7 +28,7 @@ public class CommandQuakeTeam implements CommandExecutor {
     }
 
 
-
+    // finds player nearest player to given location
     public static Player targetP(Location loc){
         Player nearestPlayer = null;
         double lastDistance = Double.MAX_VALUE;

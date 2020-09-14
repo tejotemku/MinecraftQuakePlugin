@@ -8,6 +8,10 @@ import org.bukkit.entity.Player;
 
 public class CommandLeaveQuake implements CommandExecutor {
 
+    /*
+        Sender leaves a game of quake.
+        command usage: /quake-leave
+     */
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

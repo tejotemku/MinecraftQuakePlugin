@@ -11,10 +11,17 @@ import org.bukkit.entity.Player;
 
 public class CommandMultiverse implements CommandExecutor
 {
+    /*
+        Command that allows traveling to different worlds if you have multiple
+        !!!!Command for command block!!!!
+        command usage: /multiverse x y z world_name
+     */
+
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
     {
-
+        // command arguments
         int x = Integer.parseInt(args[1]);
         int y = Integer.parseInt(args[2]);
         int z = Integer.parseInt(args[3]);
@@ -26,8 +33,6 @@ public class CommandMultiverse implements CommandExecutor
         p.teleport(new Location(w, w.getSpawnLocation().getX(), w.getSpawnLocation().getY(), w.getSpawnLocation().getZ()));
         return false;
     }
-
-
 
     public static Player targetP(Location loc)
     {

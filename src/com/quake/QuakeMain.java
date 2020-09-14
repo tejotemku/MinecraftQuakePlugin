@@ -47,7 +47,9 @@ public class QuakeMain extends JavaPlugin implements Listener {
     public List<Location> powerUpLoc = new ArrayList<>();
 
 
+    // boss bar where informations are displayed
     BossBar infoBar = Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID);
+    // scoreboard that holds points
     ScoreboardManager manager;
     Scoreboard scoreboard;
     Objective obj;
@@ -331,11 +333,14 @@ public class QuakeMain extends JavaPlugin implements Listener {
 
     public void Respawn(Player p)
     {
+        // time after death before respawn
         int seconds = 1;
-        int index = 0;
+        // variable that will hold index of randomly chosen respawn
+        int index;
         double ran = Math.random();
         ran = ran * respawns.size();
         index = (int) ran;
+        // randomly chosen spawn location
         Location loc = respawns.get(index);
 
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable()
@@ -587,7 +592,7 @@ public class QuakeMain extends JavaPlugin implements Listener {
             for (int y = -radius; y < radius; y++) {
                 for (int z = -radius; z < radius; z++) {
                     Block block = world.getBlockAt(loc.getBlockX()+x, loc.getBlockY()+y, loc.getBlockZ()+z);
-                    if (block.getType() == Material.DIAMOND_BLOCK)
+                    if (block.getType() == QuakeConfig.RespawnBlock)
                     {
                         Location l = new Location(world, block.getX(), block.getY() + 2, block.getZ());
                         respawns.add(l);
@@ -608,7 +613,7 @@ public class QuakeMain extends JavaPlugin implements Listener {
             for (int y = -radius; y < radius; y++) {
                 for (int z = -radius; z < radius; z++) {
                     Block block = world.getBlockAt(loc.getBlockX()+x, loc.getBlockY()+y, loc.getBlockZ()+z);
-                    if (block.getType() == Material.BARRIER)
+                    if (block.getType() == QuakeConfig.DustPointsPlacement)
                     {
                         Location l = new Location(world, block.getX(), block.getY() + 2, block.getZ());
                         pointsLoc.add(l);
@@ -616,7 +621,6 @@ public class QuakeMain extends JavaPlugin implements Listener {
                 }
             }
         }
-
     }
 
     public void GetPowerUpsPlacement()
@@ -629,7 +633,7 @@ public class QuakeMain extends JavaPlugin implements Listener {
             for (int y = -radius; y < radius; y++) {
                 for (int z = -radius; z < radius; z++) {
                     Block block = world.getBlockAt(loc.getBlockX()+x, loc.getBlockY()+y, loc.getBlockZ()+z);
-                    if (block.getType() == Material.EMERALD_BLOCK)
+                    if (block.getType() == QuakeConfig.PowerUpPlacement)
                     {
                         Location l = new Location(world, block.getX(), block.getY() + 2, block.getZ());
                         powerUpLoc.add(l);

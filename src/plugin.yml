@@ -1,7 +1,7 @@
 name: "Quake"
 version: "1.0"
 author: "RoztoczaNaDensflorze"
-main: "com.papiez.quake.QuakeMain"
+main: "com.quake.QuakeMain"
 api-version: "1.16"
 commands:
   quake-start:

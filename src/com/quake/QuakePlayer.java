@@ -13,6 +13,7 @@ import org.bukkit.scoreboard.Score;
 
 public class QuakePlayer {
 
+
     Player player;
     int killStreak;
     int killpoints;
@@ -35,8 +36,10 @@ public class QuakePlayer {
 
     }
 
+    // method processes being hit
     boolean gotHit(Player shotBy)
     {
+        // fireworks do dmg and players are not supposed to die for real
         player.setHealth(20.0);
         if (player.hasPotionEffect(PotionEffectType.DAMAGE_RESISTANCE))
         {
@@ -44,12 +47,13 @@ public class QuakePlayer {
             return false;
         }
 
+        // killer gets lighten up for two seconds, this helps preventing  campers
         shotBy.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 2, 1));
 
 
-        // punkty i seria zabójstw zabójcy
+        // points and kill streak
         if (killStreak > 1) {
-            killpoints = (int) (Math.pow(killStreak, 2) * 0.65);
+            killpoints = QuakeConfig.KillstreakPoints(killStreak);
             player.getServer().broadcastMessage(ChatColor.GREEN + shotBy.getName() + ChatColor.WHITE + " ended " + ChatColor.RED + player.getName() + ChatColor.WHITE + "'s killstrike (" + ChatColor.DARK_RED + killStreak + ChatColor.WHITE + " kills) and got " + ChatColor.AQUA + (killpoints + 15) + ChatColor.WHITE + "points!");
 
         } else
@@ -101,11 +105,9 @@ public class QuakePlayer {
 
     int addScore(int points)
     {
+        // add score and updates leader board
         Score score = player.getScoreboard().getObjective("QuakeTokens").getScore(player);
         score.setScore(score.getScore() + points);
         return score.getScore();
     }
-
-
-
 }
