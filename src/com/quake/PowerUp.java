@@ -12,12 +12,7 @@ import java.util.List;
 import java.util.Random;
 
 abstract class PowerUps
-{
-    public void givePlayerEffect(Player p)
-    {
-
-    }
-}
+{ public void givePlayerEffect(Player p) { } }
 
 class Resistance extends PowerUps
 {
@@ -94,7 +89,7 @@ class MegaPoints extends PowerUps
 
 public class PowerUp
 {
-
+    // list of power ups
     List<PowerUps> powerUps = new ArrayList<>();
 
     PowerUp()
@@ -108,10 +103,10 @@ public class PowerUp
 
     }
 
+    // randomly draws a power up
     void drawPowerUp(Player p)
     {
         Random random = new Random();
         powerUps.get(random.nextInt(powerUps.size())).givePlayerEffect(p);
     }
-
 }

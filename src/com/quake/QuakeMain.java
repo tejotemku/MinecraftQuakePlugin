@@ -55,17 +55,17 @@ public class QuakeMain extends JavaPlugin implements Listener {
     Objective obj;
     PowerUp powerUp = new PowerUp();
 
-
     @Override
     public void onEnable()
     {
-
+        // reset game state
         _instance = this;
         gameIsLive = false;
         pregameTime = false;
         players.clear();
         playersAlive.clear();
 
+        // registering commands
         Bukkit.setDefaultGameMode(GameMode.ADVENTURE);
         getServer().getPluginManager().registerEvents(this, this);
         getCommand("quake-start").setExecutor(new CommandQuakeGameStart());
@@ -87,6 +87,7 @@ public class QuakeMain extends JavaPlugin implements Listener {
     public void Pregame()
     {
         if (!pregameTime) {
+            // prepares scoreboards and information bar, clears player list, gets placement of respawn and bonuses
             infoBar.setVisible(true);
             ChangeBarName("Quake lobby is ready");
             players.clear();
@@ -105,12 +106,14 @@ public class QuakeMain extends JavaPlugin implements Listener {
 
     public void GameStart()
     {
+        //prepares scoreboard
         ChangeBarName("Good Luck!");
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
         obj.setDisplayName(ChatColor.DARK_AQUA + "Quake points");
         game_ID++;
 
 
+        // distributes eq and effects
         for(Player online : Bukkit.getOnlinePlayers())
         {
             if(players.contains(online))
@@ -118,7 +121,6 @@ public class QuakeMain extends JavaPlugin implements Listener {
                 online.setDisplayName(null);
                 online.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, (QuakeConfig.Minutes*1200 + (QuakeConfig.Gameisabouttostarttime + 2) * 20), 2));
                 online.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, (QuakeConfig.Minutes*1200 + (QuakeConfig.Gameisabouttostarttime + 2) * 20), 1));
-
                 online.setScoreboard(scoreboard);
                 online.setGameMode(GameMode.ADVENTURE);
                 quakePlayers.get(online).spawnEquipment();
@@ -127,7 +129,7 @@ public class QuakeMain extends JavaPlugin implements Listener {
         }
 
         Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "The game will start in " + QuakeConfig.Gameisabouttostarttime + " seconds! Get to your positions!");
-        //odliczanko
+        // countdown ... 3, 2, 1 style'n'stuff
         for (int i = 5; i >=0; i--)
         {
             final int a = i;
@@ -141,7 +143,6 @@ public class QuakeMain extends JavaPlugin implements Listener {
                         gameIsLive = true;
                         // Timer(game_ID);
                         Clock(QuakeConfig.Minutes * 60, game_ID);
-                        PointsAndPowerUpsSpawner();
                     }
                 }
             }, ((QuakeConfig.Gameisabouttostarttime - a) * 20));
@@ -150,6 +151,7 @@ public class QuakeMain extends JavaPlugin implements Listener {
 
     public void Clock(int time, int id)
     {
+        // clock that spawns bonuses manages and global events
         if(time>=0)
         {
             Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable()
@@ -160,20 +162,19 @@ public class QuakeMain extends JavaPlugin implements Listener {
                     int seconds = time % 60;
                     ChangeBarName("Time Left - " + minutes + ":"  + String.format("%02d", seconds));
 
-                    // koniec meczu
+                    // match's end
                     if (time == 0)
                     {
                         End();
                     }
 
-
-                    // komunikat o nadchodzącym efekcie Super Vision
+                    // upcomming Super Vision information
                     if (time == QuakeConfig.TimeBeforeGlowingPrompt)
                     {
                         Bukkit.broadcastMessage("Super Vision will be avaliable in 1 minute!");
                     }
 
-                    // nadanie efektu Super Vision
+                    // Super Vision effect
                     if (time == QuakeConfig.TimeBeforeGlowing)
                     {
                         for (Player online : Bukkit.getOnlinePlayers()) {
@@ -183,11 +184,13 @@ public class QuakeMain extends JavaPlugin implements Listener {
                         }
                     }
 
-                    // respawn Power Upów i punktów
-                    if (time%40 == 0 && time!= QuakeConfig.Minutes * 60)
+                    // respawn of power ups and points
+                    if (time%QuakeConfig.DustRespawnTime == 0 && time!= QuakeConfig.Minutes * 60)
                     {
+                        // points dust item template
                         ItemStack dust = new ItemStack(Material.GLOWSTONE_DUST);
                         dust.addUnsafeEnchantment(Enchantment.DIG_SPEED, 1);
+                        // remove old dust
                         for(Entity i :Bukkit.getWorld(QuakeConfig.ArcadeWorldName).getEntities())
                         {
                             if(i instanceof Item)
@@ -196,11 +199,13 @@ public class QuakeMain extends JavaPlugin implements Listener {
                                 if(item.getItemStack().getItemMeta().hasEnchant(Enchantment.DIG_SPEED))i.remove();
                             }
                         }
+                        // create new dust
                         for(Location loc : pointsLoc)
                         {
                             Bukkit.getServer().getWorld(QuakeConfig.ArcadeWorldName).dropItemNaturally(loc, dust);
                         }
 
+                        // set player food to max so they can jump'n'run
                         for(Player online : Bukkit.getOnlinePlayers())
                         {
                             if(players.contains(online)){
@@ -208,8 +213,10 @@ public class QuakeMain extends JavaPlugin implements Listener {
                             }
                         }
 
+                        // power up item template
                         ItemStack star = new ItemStack(Material.NETHER_STAR);
                         star.addUnsafeEnchantment(Enchantment.THORNS, 1);
+                        // removes old items
                         for(Entity i :Bukkit.getWorld(QuakeConfig.ArcadeWorldName).getEntities())
                         {
                             if(i instanceof Item)
@@ -218,28 +225,25 @@ public class QuakeMain extends JavaPlugin implements Listener {
                                 if(item.getItemStack().getItemMeta().hasEnchant(Enchantment.THORNS))i.remove();
                             }
                         }
+                        // spawn new items
                         for(Location loc : powerUpLoc)
                         {
                             Bukkit.getServer().getWorld(QuakeConfig.ArcadeWorldName).dropItemNaturally(loc, star);
                         }
-
-                        for(Player online : Bukkit.getOnlinePlayers())
-                        {
-                            if(players.contains(online)){
-                                online.setFoodLevel(20);
-                            }
-                        }
                     }
 
+                    // recursion
                     if (gameIsLive && id == game_ID) Clock(time-1, id);
+                    // stop clock if game is finished or stopped
                     else return;
                 }
-            }, (20));
+            }, (20)); // minecraft game specific ticks per second
         }
     }
 
     public void End()
     {
+        // finish - congratulations, returning back to lobby and prizes
         gameIsLive= false;
         ChangeBarName("Congratz!");
 
@@ -249,6 +253,7 @@ public class QuakeMain extends JavaPlugin implements Listener {
         Player p;
         p = Bukkit.getPlayer("Phoebe");
 
+        // finding winner with biggest points pool
         for(Player online :Bukkit.getOnlinePlayers())
         {
             Score score = obj.getScore(online);
@@ -259,6 +264,7 @@ public class QuakeMain extends JavaPlugin implements Listener {
             }
         }
 
+        // removing game items
         for(Entity i :Bukkit.getWorld(QuakeConfig.ArcadeWorldName).getEntities())
         {
             if(i instanceof Item)
@@ -269,19 +275,21 @@ public class QuakeMain extends JavaPlugin implements Listener {
             }
         }
 
-
+        // winner announcement
         Score win_score = obj.getScore(p);
-
         for(Player online : Bukkit.getOnlinePlayers())
         {
             if(playersAlive.contains(online))
             {
+                // middle screen info
                 online.sendTitle(ChatColor.RED + "W" + ChatColor.GREEN + "i" + ChatColor.BLUE + "n" + ChatColor.YELLOW + "n" + ChatColor.LIGHT_PURPLE + "e" + ChatColor.AQUA + "r " + ChatColor.WHITE + p.getName() + ChatColor.GOLD + "!", "with " + win_score.getScore() + " points! Congrats!");
+                // spectator mode
                 online.setGameMode(GameMode.SPECTATOR);
+                // reward
                 Score score = obj.getScore(online);
                 ItemStack emeralds = new ItemStack(Material.EMERALD, score.getScore() / 20 + 1);
                 online.getInventory().addItem(emeralds);
-
+                // taking of game eq
                 ItemStack[] armor = online.getInventory().getArmorContents();
                 online.getInventory().addItem(armor[0]);
                 online.getInventory().setBoots(null);
@@ -302,11 +310,11 @@ public class QuakeMain extends JavaPlugin implements Listener {
 
 
         }
-        //nagroda dla zwycięzcy
+        // winners reward
         ItemStack diamonds = new ItemStack(Material.DIAMOND, win_score.getScore()/30 + 1);
         p.getInventory().addItem(diamonds);
 
-
+        // back to lobby
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable()
         {
             public void run()
@@ -507,6 +515,7 @@ public class QuakeMain extends JavaPlugin implements Listener {
 
     public void Leave(Player p)
     {
+        // removes player from game stuff and then kicks them back to lobby
         if (playersAlive.contains(p)) {
             Location spawn = new Location(Bukkit.getServer().getWorld(QuakeConfig.ArcadeWorldName), QuakeConfig.LobbySpawnCoordinates.x , QuakeConfig.LobbySpawnCoordinates.y, QuakeConfig.LobbySpawnCoordinates.z);
             Score score = obj.getScore(p);
@@ -521,73 +530,16 @@ public class QuakeMain extends JavaPlugin implements Listener {
         }
     }
 
-
-    public void PointsAndPowerUpsSpawner()
-    {
-
-        if(gameIsLive)
-        {
-            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable()
-            {
-                public void run()
-                {
-                    ItemStack dust = new ItemStack(Material.GLOWSTONE_DUST);
-                    dust.addUnsafeEnchantment(Enchantment.DIG_SPEED, 1);
-                    for(Entity i :Bukkit.getWorld(QuakeConfig.ArcadeWorldName).getEntities())
-                    {
-                        if(i instanceof Item)
-                        {
-                            Item item = (Item) i;
-                            if(item.getItemStack().getItemMeta().hasEnchant(Enchantment.DIG_SPEED))i.remove();
-                        }
-                    }
-                    for(Location loc : pointsLoc)
-                    {
-                        Bukkit.getServer().getWorld(QuakeConfig.ArcadeWorldName).dropItemNaturally(loc, dust);
-                    }
-
-                    for(Player online : Bukkit.getOnlinePlayers())
-                    {
-                        if(players.contains(online)){
-                            online.setFoodLevel(20);
-                        }
-                    }
-
-                    ItemStack star = new ItemStack(Material.NETHER_STAR);
-                    star.addUnsafeEnchantment(Enchantment.THORNS, 1);
-                    for(Entity i :Bukkit.getWorld(QuakeConfig.ArcadeWorldName).getEntities())
-                    {
-                        if(i instanceof Item)
-                        {
-                            Item item = (Item) i;
-                            if(item.getItemStack().getItemMeta().hasEnchant(Enchantment.THORNS))i.remove();
-                        }
-                    }
-                    for(Location loc : powerUpLoc)
-                    {
-                        Bukkit.getServer().getWorld(QuakeConfig.ArcadeWorldName).dropItemNaturally(loc, star);
-                    }
-
-                    for(Player online : Bukkit.getOnlinePlayers())
-                    {
-                        if(players.contains(online)){
-                            online.setFoodLevel(20);
-                        }
-                    }
-
-                    PointsAndPowerUpsSpawner();
-                }
-            }, (QuakeConfig.DustRespawnTime * 20));
-        }
-
-    }
-
+    // finds places that are meant to respawn players
     public void GetRespawns()
     {
+        // settings defined in config
         int radius = QuakeConfig.ArenaRadius;
         World world = Bukkit.getWorld(QuakeConfig.ArcadeWorldName);
         Location loc = new Location(world,  QuakeConfig.ArenaCenterCoordinates.x, QuakeConfig.ArenaCenterCoordinates.y, QuakeConfig.ArenaCenterCoordinates.z);
 
+        // finds every predefined block in radius (actually cube shape, cause it's minecraft) and add its location
+        // to the table of respawns
         for (int x = -radius; x < radius; x++) {
             for (int y = -radius; y < radius; y++) {
                 for (int z = -radius; z < radius; z++) {
@@ -603,12 +555,16 @@ public class QuakeMain extends JavaPlugin implements Listener {
 
     }
 
+    // finds places that are meant to spawn points
     public void GetPointsPlacement()
     {
+        // settings defined in config
         int radius = QuakeConfig.ArenaRadius;
         World world = Bukkit.getWorld(QuakeConfig.ArcadeWorldName);
         Location loc = new Location(world, QuakeConfig.ArenaCenterCoordinates.x, QuakeConfig.ArenaCenterCoordinates.y, QuakeConfig.ArenaCenterCoordinates.z);
 
+        // finds every predefined block in radius (actually cube shape, cause it's minecraft) and add its location
+        // to the table of points
         for (int x = -radius; x < radius; x++) {
             for (int y = -radius; y < radius; y++) {
                 for (int z = -radius; z < radius; z++) {
@@ -623,12 +579,16 @@ public class QuakeMain extends JavaPlugin implements Listener {
         }
     }
 
+    // finds places that are meant to spawn power ups
     public void GetPowerUpsPlacement()
     {
+        // settings defined in config
         int radius = QuakeConfig.ArenaRadius;
         World world = Bukkit.getWorld(QuakeConfig.ArcadeWorldName);
         Location loc = new Location(world, QuakeConfig.ArenaCenterCoordinates.x, QuakeConfig.ArenaCenterCoordinates.y, QuakeConfig.ArenaCenterCoordinates.z);
 
+        // finds every predefined block in radius (actually cube shape, cause it's minecraft) and add its location
+        // to the table of power ups
         for (int x = -radius; x < radius; x++) {
             for (int y = -radius; y < radius; y++) {
                 for (int z = -radius; z < radius; z++) {
@@ -644,6 +604,7 @@ public class QuakeMain extends JavaPlugin implements Listener {
 
     }
 
+    // change boss bar text
     public void ChangeBarName(String s)
     {
         infoBar.setTitle(s);
@@ -651,6 +612,7 @@ public class QuakeMain extends JavaPlugin implements Listener {
 
     void removeSpecificItem(ItemStack i, Player p)
     {
+        // removal of game items
         if (i != null)
         {
             if (i.hasItemMeta())

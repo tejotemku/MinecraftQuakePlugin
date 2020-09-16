@@ -47,5 +47,3 @@ public class QuakeConfig {
         return (int) (Math.pow(streak, 2) * 0.65);
     }
 }
-
-

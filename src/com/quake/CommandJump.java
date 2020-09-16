@@ -30,24 +30,10 @@ public class CommandJump implements CommandExecutor {
 
 
         // find closest player
-        Player player = targetP(new Location(Bukkit.getWorld(QuakeConfig.ArcadeWorldName), x, y, z));
+        Player player = Library.targetP(new Location(Bukkit.getWorld(QuakeConfig.ArcadeWorldName), x, y, z));
         // set launching velocity
         player.setVelocity(player.getLocation().getDirection().multiply(JumpVelocity));
         player.setVelocity(new Vector(player.getVelocity().getX(), 1.0D, player.getVelocity().getZ()));
         return false;
     }
-
-    public static Player targetP(Location loc){
-        Player nearestPlayer = null;
-        double lastDistance = Double.MAX_VALUE;
-        for(Player p : loc.getWorld().getPlayers()){
-            double distanceSqrd = loc.distanceSquared(p.getLocation());
-            if(distanceSqrd < lastDistance){
-                lastDistance = distanceSqrd;
-                nearestPlayer = p;
-            }
-        }
-        return nearestPlayer;
-    }
-
 }

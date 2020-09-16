@@ -26,25 +26,11 @@ public class CommandMultiverse implements CommandExecutor
         int y = Integer.parseInt(args[2]);
         int z = Integer.parseInt(args[3]);
         World w_current = Bukkit.getWorld(args[4]);
-        Player p = targetP(new Location(w_current, x, y, z));
+        Player p = Library.targetP(new Location(w_current, x, y, z));
 
         // Player p = Bukkit.getPlayer(sender.getName());
         World w = Bukkit.getWorld(args[0]);
         p.teleport(new Location(w, w.getSpawnLocation().getX(), w.getSpawnLocation().getY(), w.getSpawnLocation().getZ()));
         return false;
-    }
-
-    public static Player targetP(Location loc)
-    {
-        Player nearestPlayer = null;
-        double lastDistance = Double.MAX_VALUE;
-        for(Player p : loc.getWorld().getPlayers()){
-            double distanceSqrd = loc.distanceSquared(p.getLocation());
-            if(distanceSqrd < lastDistance){
-                lastDistance = distanceSqrd;
-                nearestPlayer = p;
-            }
-        }
-        return nearestPlayer;
     }
 }
