@@ -9,6 +9,7 @@ In QuakeConig.java define coordinates for lobby, map, radius, game length and mo
 Prepare 3 commandblocks in your lobby. Put in them commands: /quake-prestart, /quake-start and /quake-join
 
 Make sure to put coordinates of pressure plate that activates command block with /quake-join
+
 Example: /quake-join 3 90 -123
 
 Start by stepping on /quake-prestart, then all players join by stepping on /quake-join (!one by one), next /quake-start
